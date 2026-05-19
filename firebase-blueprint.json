@@ -1,0 +1,51 @@
+{
+  "entities": {
+    "Task": {
+      "title": "Task",
+      "description": "A productivity task.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "priority": { "type": "string" },
+        "tags": { "type": "array" },
+        "dueDate": { "type": "number" },
+        "completed": { "type": "boolean" },
+        "createdAt": { "type": "number" },
+        "completedAt": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "priority", "completed", "createdAt", "status"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "A recurring daily habit.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "icon": { "type": "string" },
+        "streak": { "type": "number" },
+        "completedToday": { "type": "boolean" },
+        "lastCompletedAt": { "type": "number" },
+        "priority": { "enum": ["low", "medium", "high"], "type": "string" },
+        "frequency": { "enum": ["daily", "weekly", "monthly"], "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "userId", "name", "icon", "streak", "completedToday", "priority", "frequency", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/Task" },
+      "description": "Tasks created by users."
+    },
+    "/habits/{habitId}": {
+      "schema": { "$ref": "#/entities/Habit" },
+      "description": "Habits created by users."
+    }
+  }
+}
