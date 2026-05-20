@@ -15,6 +15,16 @@ import {
   QueryConstraint
 } from 'firebase/firestore';
 import { db, auth } from './firebase';
+import {
+  createDemoHabit,
+  createDemoTask,
+  deleteDemoTask,
+  isDemoUser,
+  subscribeToDemoHabits,
+  subscribeToDemoTasks,
+  updateDemoHabit,
+  updateDemoTask,
+} from './demo';
 
 export enum OperationType {
   CREATE = 'create',
@@ -82,6 +92,8 @@ export interface Habit {
 
 export const subscribeToHabits = (userId: string, callback: (habits: Habit[]) => void) => {
   if (!userId) return () => {};
+  if (isDemoUser(userId)) return subscribeToDemoHabits(callback);
+
   const q = query(collection(db, 'habits'), where('userId', '==', userId), orderBy('createdAt', 'desc'));
 
   return onSnapshot(
@@ -100,6 +112,8 @@ export const subscribeToHabits = (userId: string, callback: (habits: Habit[]) =>
 };
 
 export const createHabit = async (habitData: Omit<Habit, 'id' | 'createdAt'>) => {
+  if (isDemoUser(habitData.userId)) return createDemoHabit(habitData);
+
   try {
     const newDocRef = doc(collection(db, 'habits'));
     const habit = { ...habitData, id: newDocRef.id, createdAt: Date.now() };
@@ -111,6 +125,11 @@ export const createHabit = async (habitData: Omit<Habit, 'id' | 'createdAt'>) =>
 };
 
 export const updateHabit = async (habitId: string, updates: Partial<Habit>) => {
+  if (habitId.startsWith('demo-habit-')) {
+    updateDemoHabit(habitId, updates);
+    return;
+  }
+
   try {
     const docRef = doc(db, 'habits', habitId);
     await updateDoc(docRef, updates);
@@ -130,6 +149,8 @@ export const deleteHabit = async (habitId: string) => {
 
 export const subscribeToTasks = (userId: string, callback: (tasks: Task[]) => void) => {
   if (!userId) return () => {};
+  if (isDemoUser(userId)) return subscribeToDemoTasks(callback);
+
   const q = query(
     collection(db, 'tasks'),
     where('userId', '==', userId),
@@ -152,6 +173,8 @@ export const subscribeToTasks = (userId: string, callback: (tasks: Task[]) => vo
 };
 
 export const createTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+  if (isDemoUser(taskData.userId)) return createDemoTask(taskData);
+
   try {
     const newDocRef = doc(collection(db, 'tasks'));
     const task = {
@@ -167,6 +190,11 @@ export const createTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
 };
 
 export const updateTask = async (taskId: string, updates: Partial<Task>) => {
+  if (taskId.startsWith('demo-task-')) {
+    updateDemoTask(taskId, updates);
+    return;
+  }
+
   try {
     const docRef = doc(db, 'tasks', taskId);
     await updateDoc(docRef, updates);
@@ -176,6 +204,11 @@ export const updateTask = async (taskId: string, updates: Partial<Task>) => {
 };
 
 export const deleteTaskFromDb = async (taskId: string) => {
+  if (taskId.startsWith('demo-task-')) {
+    deleteDemoTask(taskId);
+    return;
+  }
+
   try {
     const docRef = doc(db, 'tasks', taskId);
     await deleteDoc(docRef);

@@ -29,7 +29,7 @@ export default function Calendar() {
       return task.dueDate 
         ? isSameDay(new Date(task.dueDate), selectedDate)
         : isSameDay(taskDate, selectedDate);
-    }).map(t => ({...t, type: 'task'})),
+    }).map(t => ({...t, type: 'task' as const})),
     ...habits.filter(habit => {
       // Habit apply logic based on frequency
       const createdDate = startOfDay(new Date(habit.createdAt));
@@ -74,7 +74,7 @@ export default function Calendar() {
         completed: isSameDay(selectedDate, new Date()) ? h.completedToday : completedOnDate,
         priority: h.priority || 'medium',
         createdAt: startOfDay(selectedDate).getTime(),
-        type: 'habit',
+        type: 'habit' as const,
         frequency: h.frequency,
         isReminder
       }
